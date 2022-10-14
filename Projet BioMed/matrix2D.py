@@ -1,4 +1,9 @@
 import numpy as np
+from pylab import meshgrid,cm,imshow,contour,clabel,colorbar,axis,title,show
+import math
+import seaborn as sns; sns.set()
+
+
 np.set_printoptions(linewidth=999999)
 
 def matriceM(mx,my,a,b):
@@ -15,37 +20,42 @@ def matriceM(mx,my,a,b):
         M[x,x+(my+1)]=a
     return M
 
-def B(u0,M):
-    Lx=10
-    Ly=10
+def B(u0,M,Lx,Ly):
     X=np.linspace(0,Lx,M+1)
     Y=np.linspace(0,Ly,M+1)
-    U0=[u0(y) for y in Y] #u0 profil de vitesse initial
-    B=[0]*(M+1)*(M+1)
+    U0=-(Y*(Y-Ly)) #u0 profil de vitesse initial
+    B=[10]*(M+1)*(M+1)
+    for i in range(2,mx):
+        B[i*(my+1)]=0
+        B[i*(my+1)-1]=0
     for k in range(M+1):
         B[k]=U0[k]
     for k in range(M*(M-1)+1,M*M+1):
-        B[k]=U0[k-(M*(M-1)+1)]
-    return(np.array(B))
+        B[k]=B[k-M*(M-1)+1]
+    print("U0 is:",U0)
+    B=np.array(B)
+    B = B.reshape(len(B),1)
+    return(B)
 
-def couplage (i,j) :
-    return (((i+j)*(i+j+1))/2+j)
-
-
-def inverse (n) : #la bijection réciproque de la fct couplage
-    p=math.floor((-1+math.sqrt(1+8*n))/2)
-    return (p*(p+3)/2-n,n-p*(p+1)/2)
 
 def reshap(U,M):
     u= [[0]*(M+1)]*(M)
     u=U.reshape(M+1,M+1)
     return(u)
 
-A=matriceM(3,3,0.09,0.09)
-B=B(lambda y: y*(y-10),3)
-U=np.linalg.solve(A,B)
+# def u(x,y):
+#     for i in range(len(X)):
+#         for j in range(len(Y)):
+#             if list(X)[i] == x and list(Y)[j] == y:
+#                 return u[i][j]
 
-plt.plot(X,Y,label="approx")
-plt.plot(X,F,label = 'solution')
-plt.legend()
-plt.show()
+def D2(M,L):
+    a = (M/L)**2
+    b = a
+    A = matriceM(M,M,a,b)
+    C = B(lambda y: -y*(y-L),M,L,L)
+    U=np.linalg.solve(A,C)
+    u = reshap(U,M)
+    ax = sns.heatmap(u)
+    plt.show()
+    return(u)
