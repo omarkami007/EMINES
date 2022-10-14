@@ -14,7 +14,7 @@ b=zeros(nx,ny); %interior rows are zero
 b(:,1)=0; %bottom
 b(1,:)=4*x.*(1-x); %left
 b(:,ny)=0; %top
-b(nx,:)=0; %right
+b(nx,:)=4*x.*(1-x); %right
 b=reshape(b,nx*ny,1); %make column vector using natural ordering [same as b=b(:)]
 
 Phi=A\b; %solution by Gaussian elimination
