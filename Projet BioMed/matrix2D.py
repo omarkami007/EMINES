@@ -38,11 +38,14 @@ def inverse (n) : #la bijection réciproque de la fct couplage
 
 def reshap(U,M):
     u= [[0]*(M+1)]*(M)
-    for i in range(M+1):
-        for j in range(M+1):
-            u[i][j]=U[i*(M+1)+j+1]
+    u=U.reshape(M+1,M+1)
     return(u)
 
 A=matriceM(3,3,0.09,0.09)
 B=B(lambda y: y*(y-10),3)
 U=np.linalg.solve(A,B)
+
+plt.plot(X,Y,label="approx")
+plt.plot(X,F,label = 'solution')
+plt.legend()
+plt.show()
