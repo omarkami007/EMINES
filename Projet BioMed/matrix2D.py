@@ -24,14 +24,16 @@ def B(u0,M,Lx,Ly):
     X=np.linspace(0,Lx,M+1)
     Y=np.linspace(0,Ly,M+1)
     U0=-(Y*(Y-Ly)) #u0 profil de vitesse initial
-    B=[10]*(M+1)*(M+1)
-    for i in range(2,mx):
+    B=[-10**6]*(M+1)*(M+1)
+    mx=M
+    my=M
+    for i in range(1,mx+1):
         B[i*(my+1)]=0
         B[i*(my+1)-1]=0
     for k in range(M+1):
         B[k]=U0[k]
-    for k in range(M*(M-1)+1,M*M+1):
-        B[k]=B[k-M*(M-1)+1]
+    for j in range(mx*(my+1),(mx+1)*(my+1)):
+        B[j]=B[j-(mx*(my+1))]
     print("U0 is:",U0)
     B=np.array(B)
     B = B.reshape(len(B),1)
@@ -55,7 +57,8 @@ def D2(M,L):
     A = matriceM(M,M,a,b)
     C = B(lambda y: -y*(y-L),M,L,L)
     U=np.linalg.solve(A,C)
-    u = reshap(U,M)
+    u = np.transpose(reshap(U,M))
     ax = sns.heatmap(u)
     plt.show()
-    return(u)
+
+    return(U,u)
