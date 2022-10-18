@@ -1,10 +1,11 @@
 import numpy as np
 from pylab import meshgrid,cm,imshow,contour,clabel,colorbar,axis,title,show
 import math
-import seaborn as sns; sns.set()
+import matplotlib.pyplot as plt
+import seaborn as sns
+import sys
+np.set_printoptions(threshold=sys.maxsize)
 
-
-np.set_printoptions(linewidth=999999)
 
 def matriceM(mx,my,a,b):
     c=-2*(a+b)
@@ -32,6 +33,7 @@ def B(u0,M,Lx,Ly):
         B[i*(my+1)-1]=0
     for k in range(M+1):
         B[k]=U0[k]
+        B[k+M+1]=U0[k]
     for j in range(mx*(my+1),(mx+1)*(my+1)):
         B[j]=B[j-(mx*(my+1))]
     print("U0 is:",U0)
@@ -52,8 +54,8 @@ def reshap(U,M):
 #                 return u[i][j]
 
 def D2(M,L):
-    a = (M/L)**2
-    b = a
+    a = 10**(-6)
+    b = (M/L)**2
     A = matriceM(M,M,a,b)
     C = B(lambda y: -y*(y-L),M,L,L)
     U=np.linalg.solve(A,C)
@@ -61,4 +63,4 @@ def D2(M,L):
     ax = sns.heatmap(u)
     plt.show()
 
-    return(U,u)
+    return(A,C,u)
