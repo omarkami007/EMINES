@@ -1,4 +1,0 @@
-Application mobile?
-Un site par cabinet? ou un site regroupant plusieurs cabinets
-Langage
-Payment: 2checkout

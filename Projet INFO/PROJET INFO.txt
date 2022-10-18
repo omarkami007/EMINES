@@ -1,3 +1,0 @@
-Questions:
-Revoir le cahier de charge
-meilleur language pour coder le chatbot
