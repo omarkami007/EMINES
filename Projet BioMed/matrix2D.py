@@ -1,66 +1,68 @@
 import numpy as np
 from pylab import meshgrid,cm,imshow,contour,clabel,colorbar,axis,title,show
-import math
 import matplotlib.pyplot as plt
 import seaborn as sns
 import sys
 np.set_printoptions(threshold=sys.maxsize)
+np.set_printoptions(linewidth=sys.maxsize)
 
 
-def matriceM(mx,my,a,b):
+
+def matriceA(M,a,b):
     c=-2*(a+b)
-    M=np.identity((mx+1)*(my+1))
-    L=[i for i in range(my+2,mx*(my+1)-1)]
-    for i in range(2,mx):
-        L.remove(i*(my+1))
-        L.remove(i*(my+1)-1)
+    A=np.identity((M+1)*(M+1))
+    L=[i for i in range(M+2,M*(M+1)-1)]
+    for i in range(2,M):
+        L.remove(i*(M+1))
+        L.remove(i*(M+1)-1)
     for x in L:
-        M[x,x]=c
-        M[x,x-1],M[x,x+1]=b,b
-        M[x,x-(my+1)]=a
-        M[x,x+(my+1)]=a
-    return M
+        A[x,x]=c
+        A[x,x-1],A[x,x+1]=b,b
+        A[x,x-(M+1)]=a
+        A[x,x+(M+1)]=a
+    return A
 
-def B(u0,M,Lx,Ly):
-    X=np.linspace(0,Lx,M+1)
-    Y=np.linspace(0,Ly,M+1)
-    U0=-(Y*(Y-Ly)) #u0 profil de vitesse initial
-    B=[-10**6]*(M+1)*(M+1)
-    mx=M
-    my=M
-    for i in range(1,mx+1):
-        B[i*(my+1)]=0
-        B[i*(my+1)-1]=0
-    for k in range(M+1):
-        B[k]=U0[k]
-        B[k+M+1]=U0[k]
-    for j in range(mx*(my+1),(mx+1)*(my+1)):
-        B[j]=B[j-(mx*(my+1))]
-    print("U0 is:",U0)
-    B=np.array(B)
-    B = B.reshape(len(B),1)
+def matriceB(M,Lx,Ly,CD,CG,CB,CH,g):
+    ''' CD=[f(O,y)]
+    CG=[f(Lx,y)] y variant dans (0,Ly)
+    CB=[f(x,0)]
+    CH=[f(x,Ly)]'''
+    x = np.linspace(0, Lx , M+1)
+    y = np.linspace(0, Ly, M+1)
+    X,Y = np.meshgrid(x, y)
+    G=np.zeros((M+1,M+1))
+    for i in range(M+1):
+        for j in range(M+1):
+            G[i,j]=g(x[i],y[j])
+    B=G.reshape(((M+1)**2,1))
+    B[:M+1,0]=CD
+    B[M*(M+1):,0]=CG
+    for i in range(1,M):
+        B[i*(M+1)]=CB[i]
+        B[(i+1)*(M+1)-1]=CH[i]
     return(B)
 
 
-def reshap(U,M):
-    u= [[0]*(M+1)]*(M)
-    u=U.reshape(M+1,M+1)
-    return(u)
+def reshape(f,M):
+    F=f.reshape((M+1,M+1))
+    return(F)
 
-# def u(x,y):
-#     for i in range(len(X)):
-#         for j in range(len(Y)):
-#             if list(X)[i] == x and list(Y)[j] == y:
-#                 return u[i][j]
 
-def D2(M,L):
-    a = 10**(-6)
-    b = (M/L)**2
-    A = matriceM(M,M,a,b)
-    C = B(lambda y: -y*(y-L),M,L,L)
-    U=np.linalg.solve(A,C)
-    u = np.transpose(reshap(U,M))
-    ax = sns.heatmap(u)
+def D2(M,Lx,Ly,CD,CG,CB,CH,g):
+    a = (M/Lx)**2
+    b = (M/Ly)**2
+    A = matriceA(M,a,b)
+    B = matriceB(M,Lx,Ly,CD,CG,CB,CH,g)
+    f = np.linalg.solve(A,B)
+    F = reshape(f,M)
+    return(A,B,f,np.transpose(F))
+
+def tracage(F,M):
+    x=np.linspace(0,1,M+1)
+    y=np.linspace(0,1,M+1)
+    X,Y = np.meshgrid(x,y)
+
+    fig = plt.figure(figsize = (11,7), dpi=100)
+    plt.quiver(X, Y, F, np.zeros((M+1,M+1)))
+    #ax = sns.heatmap(F)
     plt.show()
-
-    return(A,C,u)
