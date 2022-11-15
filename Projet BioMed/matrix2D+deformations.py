@@ -71,7 +71,7 @@ def tracage(F,M):
 
 
 #Variables:
-M = 15
+M = 5
 Lx = 2
 Ly = 1
 a = (M/Lx)**2
@@ -204,9 +204,33 @@ def champsV(M):
     V = np.transpose(V.reshape((M+1,M+1)))
     return(V)
 
+##Cas de deformations:
 
-fig = plt.figure(figsize = (11,7), dpi=100)
-plt.quiver(X, Y, champsU(M), champsV(M))
-ax = sns.heatmap(champsU(M))
-plt.show()
+# 0) les variables:
 
+
+
+
+
+
+# 1) Pression
+
+
+def cPmatriceA(M,a,b):
+    A = PmatriceA(M,a,b)
+    A[M*(M+1):][:,(M-1)*(M+1):M*(M+1)]=-np.eye(M+1)
+    return(A)
+
+def cPmatriceB(M,a,b):
+    B = matriceB(M,Lx,Ly,np.zeros(M+1),P1,np.zeros(M+1),np.zeros(M+1),np.zeros((M+1,M+1)))
+    return(B)
+
+def champscP(M):
+    A = cPmatriceA(M,a,b)
+    B = cPmatriceB(M,a,b)
+    P = np.linalg.solve(A,B)
+    P = P.reshape((M+1,M+1))
+    return(np.transpose(P))
+
+
+# 2) U et V: (meme algo que sans deformations)
