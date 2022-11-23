@@ -206,7 +206,9 @@ def champsV(M):
 
 
 fig = plt.figure(figsize = (11,7), dpi=100)
+plt.contourf(X, Y, champsU(M),levels=50)
+plt.colorbar()
 plt.quiver(X, Y, champsU(M), champsV(M))
-ax = sns.heatmap(champsU(M))
+#ax = sns.heatmap(champsU(M))
 plt.show()
 

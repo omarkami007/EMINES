@@ -27,9 +27,6 @@ def matriceB(M,Lx,Ly,CD,CG,CB,CH,G):
     CD=[f(Lx,y)] y variant dans (0,Ly)
     CB=[f(x,0)]
     CH=[f(x,Ly)]'''
-    x = np.linspace(0, Lx , M+1)
-    y = np.linspace(0, Ly, M+1)
-    X,Y = np.meshgrid(x, y)
     B=np.zeros((M+1,M+1))
     for i in range(M+1):
         for j in range(M+1):
@@ -71,7 +68,7 @@ def tracage(F,M):
 
 
 #Variables:
-M = 5
+M = 10
 Lx = 2
 Ly = 1
 a = (M/Lx)**2
@@ -82,8 +79,12 @@ X,Y = np.meshgrid(x,y)
 
     #Calcul du champs P:
         #Conditions auxbords:
-P1=10
-P2=5
+P1=np.zeros(M+1)+10
+#P1[0]=0
+#P1[-1]=0
+P2=np.zeros(M+1)+5
+#P2[0]=0
+#P2[-1]=0
 #dp/dy = 0 a gauche et droite
 
 def PmatriceA(M,a,b):
@@ -206,31 +207,121 @@ def champsV(M):
 
 ##Cas de deformations:
 
-# 0) les variables:
+# MatriceA:
 
-
-
-
-
-
-# 1) Pression
-
-
-def cPmatriceA(M,a,b):
-    A = PmatriceA(M,a,b)
-    A[M*(M+1):][:,(M-1)*(M+1):M*(M+1)]=-np.eye(M+1)
+def dmatriceA(M,L,a,b):
+    A = matriceA(M,a,b)
+    for x in L:
+        e=x[0][0]
+        f=x[0][1]
+        d=x[1]
+        for i in range(e,f+1):
+            for j in range(d+1):
+                A[i*(M+1)+j]=np.zeros((M+1)**2)
+                A[i*(M+1)+j][i*(M+1)+j]=1
     return(A)
 
-def cPmatriceB(M,a,b):
-    B = matriceB(M,Lx,Ly,np.zeros(M+1),P1,np.zeros(M+1),np.zeros(M+1),np.zeros((M+1,M+1)))
+def PdmatriceB(M,L):
+    B = matriceB(M,Lx,Ly,P1,P2,np.zeros(M+1),np.zeros(M+1),np.zeros((M+1,M+1)))
+    for x in L:
+        e=x[0][0]
+        f=x[0][1]
+        d=x[1]
+        for i in range(e,f+1):
+                if i!=e and i!=f:
+                    for j in range(d):
+                        B[i*(M+1)+j]=0
+                else:
+                    for j in range(d+1):
+                        B[i*(M+1)+j]=0
+        for i in range(e,f+1):
+            B[i*(M+1)+d]=0
     return(B)
 
-def champscP(M):
-    A = cPmatriceA(M,a,b)
-    B = cPmatriceB(M,a,b)
+
+
+
+def dchampsP(M,L):
+    A = dmatriceA(M,L,a,b)
+    B = PdmatriceB(M,L)
     P = np.linalg.solve(A,B)
     P = P.reshape((M+1,M+1))
     return(np.transpose(P))
 
 
-# 2) U et V: (meme algo que sans deformations)
+def dPdy2(M,L):
+    P =  dchampsP(M,L)
+    dP = np.zeros((M+1,M+1))
+    d = eta*((b)**-0.5)
+    for j in range(M+1):
+        for i in range(M):
+            dP[i,j]=(P[i+1,j]-P[i,j])/d
+        dP[M,j]=(P[M,j]-P[M-1,j])/d
+    return(dP)
+
+def dPdx2(M,L):
+    P =  dchampsP(M,L)
+    dP = np.zeros((M+1,M+1))
+    d = eta*((a)**-0.5)
+    for i in range(M+1):
+        for j in range(M):
+            dP[i,j]=(P[i,j+1]-P[i,j])/d
+        dP[i,M]=(P[i,M]-P[i,M-1])/d
+    return(dP)
+
+
+def dUmatriceA(M,L,a,b):
+
+
+def dUmatriceB(M,L):
+    B = matriceB(M,Lx,Ly,U1,U2,np.zeros(M+1),np.zeros(M+1),-np.ones((M+1,M+1)))
+    for x in L:
+        e=x[0][0]
+        f=x[0][1]
+        d=x[1]
+        for i in range(e,f+1):
+                if i!=e and i!=f:
+                    for j in range(d):
+                        B[i*(M+1)+j]=0
+                else:
+                    for j in range(d+1):
+                        B[i*(M+1)+j]=0
+        for i in range(e,f+1):
+            B[i*(M+1)+d]=0
+    return(B)
+
+
+
+def dVmatriceB(M,L,a,b):
+    B = matriceB(M,Lx,Ly,U2,U1,np.zeros(M+1),np.zeros(M+1),dPdy2(M,L))
+    for x in L:
+        for i in range(x[0][0]-1,x[0][1]+2):
+            for j in range(1,x[1]+2):
+                B[i*(M+1)+j]=0
+
+
+    return(B)
+
+
+def dchampsU(M,L):
+    A = dmatriceA(M,L,a,b)
+    B = dUmatriceB(M,L)
+    U = np.linalg.solve(A,B)
+    U = np.transpose(U.reshape((M+1,M+1)))
+    return(U)
+
+def dchampsV(M,L):
+    A = dmatriceA(M,L,a,b)
+    B = dVmatriceB(M,L,a,b)
+    V = np.linalg.solve(A,B)
+    V = np.transpose(V.reshape((M+1,M+1)))
+    return(V)
+
+
+
+fig = plt.figure(figsize = (11,7), dpi=100)
+#plt.quiver(X, Y, dchampsU(M,[((5,10),8)]), dchampsV(M,[((5,35),8)]))
+ax = sns.heatmap(champsU(M))
+plt.show()
+
+
