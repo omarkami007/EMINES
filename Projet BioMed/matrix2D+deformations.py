@@ -68,7 +68,7 @@ def tracage(F,M):
 
 
 #Variables:
-M = 10
+M = 50
 Lx = 2
 Ly = 1
 a = (M/Lx)**2
@@ -221,7 +221,31 @@ def dmatriceA(M,L,a,b):
                 A[i*(M+1)+j][i*(M+1)+j]=1
     return(A)
 
-def PdmatriceB(M,L):
+def dPmatriceA(M,L,a,b):
+    A = PmatriceA(M,a,b)
+    for x in L:
+        e=x[0][0]
+        f=x[0][1]
+        d=x[1]
+        for i in range(e,f+1):
+            aa=((M-d-1)/Lx)**2
+            bb=((M-d-1)/Ly)**2
+            cc= -2*(aa+bb)
+
+            for j in range(d+1):
+                A[i*(M+1)+j]=np.zeros((M+1)**2)
+                A[i*(M+1)+j][i*(M+1)+j]=1
+            for j in range(d+1,M+1):
+                A[i*(M+1)+j,i*(M+1)+j]=cc
+                A[i*(M+1)+j,i*(M+1)+j-1]=bb
+                A[i*(M+1)+j,i*(M+1)+j+1]=bb
+                A[i*(M+1)+j,i*(M+1)+j-(M+1)]=aa
+                A[i*(M+1)+j,i*(M+1)+j+(M+1)]=aa
+    return(A)
+
+
+
+def dPmatriceB(M,L):
     B = matriceB(M,Lx,Ly,P1,P2,np.zeros(M+1),np.zeros(M+1),np.zeros((M+1,M+1)))
     for x in L:
         e=x[0][0]
@@ -242,8 +266,8 @@ def PdmatriceB(M,L):
 
 
 def dchampsP(M,L):
-    A = dmatriceA(M,L,a,b)
-    B = PdmatriceB(M,L)
+    A = dPmatriceA(M,L,a,b)
+    B = dPmatriceB(M,L)
     P = np.linalg.solve(A,B)
     P = P.reshape((M+1,M+1))
     return(np.transpose(P))
@@ -271,10 +295,19 @@ def dPdx2(M,L):
 
 
 def dUmatriceA(M,L,a,b):
-
+    A = UmatriceA(M,a,b)
+    for x in L:
+        e=x[0][0]
+        f=x[0][1]
+        d=x[1]
+        for i in range(e,f+1):
+            for j in range(d+1):
+                A[i*(M+1)+j]=np.zeros((M+1)**2)
+                A[i*(M+1)+j][i*(M+1)+j]=1
+    return(A)
 
 def dUmatriceB(M,L):
-    B = matriceB(M,Lx,Ly,U1,U2,np.zeros(M+1),np.zeros(M+1),-np.ones((M+1,M+1)))
+    B = matriceB(M,Lx,Ly,U1,U2,np.zeros(M+1),np.zeros(M+1),dPdx2(M,L))
     for x in L:
         e=x[0][0]
         f=x[0][1]
@@ -290,7 +323,17 @@ def dUmatriceB(M,L):
             B[i*(M+1)+d]=0
     return(B)
 
-
+def dVmatriceA(M,L,a,b):
+    A = VmatriceA(M,a,b)
+    for x in L:
+        e=x[0][0]
+        f=x[0][1]
+        d=x[1]
+        for i in range(e,f+1):
+            for j in range(d+1):
+                A[i*(M+1)+j]=np.zeros((M+1)**2)
+                A[i*(M+1)+j][i*(M+1)+j]=1
+    return(A)
 
 def dVmatriceB(M,L,a,b):
     B = matriceB(M,Lx,Ly,U2,U1,np.zeros(M+1),np.zeros(M+1),dPdy2(M,L))
@@ -304,14 +347,14 @@ def dVmatriceB(M,L,a,b):
 
 
 def dchampsU(M,L):
-    A = dmatriceA(M,L,a,b)
+    A = dUmatriceA(M,L,a,b)
     B = dUmatriceB(M,L)
     U = np.linalg.solve(A,B)
     U = np.transpose(U.reshape((M+1,M+1)))
     return(U)
 
 def dchampsV(M,L):
-    A = dmatriceA(M,L,a,b)
+    A = dVmatriceA(M,L,a,b)
     B = dVmatriceB(M,L,a,b)
     V = np.linalg.solve(A,B)
     V = np.transpose(V.reshape((M+1,M+1)))
@@ -320,8 +363,8 @@ def dchampsV(M,L):
 
 
 fig = plt.figure(figsize = (11,7), dpi=100)
-#plt.quiver(X, Y, dchampsU(M,[((5,10),8)]), dchampsV(M,[((5,35),8)]))
-ax = sns.heatmap(champsU(M))
+plt.quiver(X, Y, dchampsU(M,[((5,9),4)]), dchampsV(M,[((5,9),4)]))
+#ax = sns.heatmap(dchampsV(M,[((10,20),10)]))
 plt.show()
 
 
