@@ -68,7 +68,7 @@ def tracage(F,M):
 
 
 #Variables:
-M = 50
+M = 15
 Lx = 2
 Ly = 1
 a = (M/Lx)**2
@@ -232,10 +232,11 @@ def dPmatriceA(M,L,a,b):
             bb=((M-d-1)/Ly)**2
             cc= -2*(aa+bb)
 
-            for j in range(d+1):
+            for j in range(d+2):
                 A[i*(M+1)+j]=np.zeros((M+1)**2)
                 A[i*(M+1)+j][i*(M+1)+j]=1
-            for j in range(d+1,M+1):
+        for i in range(e+1,f):
+            for j in range(d+2,M-1):
                 A[i*(M+1)+j,i*(M+1)+j]=cc
                 A[i*(M+1)+j,i*(M+1)+j-1]=bb
                 A[i*(M+1)+j,i*(M+1)+j+1]=bb
@@ -246,20 +247,19 @@ def dPmatriceA(M,L,a,b):
 
 
 def dPmatriceB(M,L):
-    B = matriceB(M,Lx,Ly,P1,P2,np.zeros(M+1),np.zeros(M+1),np.zeros((M+1,M+1)))
+    B = matriceB(M,Lx,Ly,P2,P1,np.zeros(M+1),np.zeros(M+1),np.zeros((M+1,M+1)))
     for x in L:
         e=x[0][0]
         f=x[0][1]
         d=x[1]
         for i in range(e,f+1):
                 if i!=e and i!=f:
-                    for j in range(d):
-                        B[i*(M+1)+j]=0
-                else:
                     for j in range(d+1):
                         B[i*(M+1)+j]=0
-        for i in range(e,f+1):
-            B[i*(M+1)+d]=0
+                else:
+                    for j in range(d+2):
+                        B[i*(M+1)+j]=0
+
     return(B)
 
 
@@ -333,15 +333,23 @@ def dVmatriceA(M,L,a,b):
             for j in range(d+1):
                 A[i*(M+1)+j]=np.zeros((M+1)**2)
                 A[i*(M+1)+j][i*(M+1)+j]=1
+            A[i*(M+1)+d+1]=np.zeros((M+1)**2)
+            A[i*(M+1)+d+1]=1
     return(A)
 
 def dVmatriceB(M,L,a,b):
-    B = matriceB(M,Lx,Ly,U2,U1,np.zeros(M+1),np.zeros(M+1),dPdy2(M,L))
+    B = matriceB(M,Lx,Ly,V2,V1,np.zeros(M+1),np.zeros(M+1),dPdy2(M,L))
+    '''for i in range(1,M):
+        B[i*(M+1)+1]=0
+        B[(i+1)*(M+1)-2]=0'''
     for x in L:
-        for i in range(x[0][0]-1,x[0][1]+2):
-            for j in range(1,x[1]+2):
+        e=x[0][0]
+        f=x[0][1]
+        d=x[1]
+        for i in range(e,f+1):
+            for j in range(d+1):
                 B[i*(M+1)+j]=0
-
+            #B[i*(M+1)+d+1]=0
 
     return(B)
 
@@ -363,8 +371,8 @@ def dchampsV(M,L):
 
 
 fig = plt.figure(figsize = (11,7), dpi=100)
-plt.quiver(X, Y, dchampsU(M,[((5,9),4)]), dchampsV(M,[((5,9),4)]))
-#ax = sns.heatmap(dchampsV(M,[((10,20),10)]))
+#plt.quiver(X, Y, dchampsU(M,[((1,2),1)]), dchampsV(M,[((5,9),4)]))
+ax = sns.heatmap(dPdx(M))
 plt.show()
 
 
