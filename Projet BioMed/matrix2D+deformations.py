@@ -68,7 +68,7 @@ def tracage(F,M):
 
 
 #Variables:
-M = 15
+M = 30
 Lx = 2
 Ly = 1
 a = (M/Lx)**2
@@ -296,14 +296,26 @@ def dPdx2(M,L):
 
 def dUmatriceA(M,L,a,b):
     A = UmatriceA(M,a,b)
+
     for x in L:
         e=x[0][0]
         f=x[0][1]
         d=x[1]
         for i in range(e,f+1):
-            for j in range(d+1):
+            aa=((M-d-1)/Lx)**2
+            bb=((M-d-1)/Ly)**2
+            cc= -2*(aa+bb)
+
+            for j in range(d+2):
                 A[i*(M+1)+j]=np.zeros((M+1)**2)
                 A[i*(M+1)+j][i*(M+1)+j]=1
+        for i in range(e+1,f):
+            for j in range(d+2,M-1):
+                A[i*(M+1)+j,i*(M+1)+j]=cc
+                A[i*(M+1)+j,i*(M+1)+j-1]=bb
+                A[i*(M+1)+j,i*(M+1)+j+1]=bb
+                A[i*(M+1)+j,i*(M+1)+j-(M+1)]=aa
+                A[i*(M+1)+j,i*(M+1)+j+(M+1)]=aa
     return(A)
 
 def dUmatriceB(M,L):
@@ -317,7 +329,7 @@ def dUmatriceB(M,L):
                     for j in range(d):
                         B[i*(M+1)+j]=0
                 else:
-                    for j in range(d+1):
+                    for j in range(d+2):
                         B[i*(M+1)+j]=0
         for i in range(e,f+1):
             B[i*(M+1)+d]=0
@@ -330,11 +342,20 @@ def dVmatriceA(M,L,a,b):
         f=x[0][1]
         d=x[1]
         for i in range(e,f+1):
+            aa=((M-d-1)/Lx)**2
+            bb=((M-d-1)/Ly)**2
+            cc= -2*(aa+bb)
+
             for j in range(d+1):
                 A[i*(M+1)+j]=np.zeros((M+1)**2)
                 A[i*(M+1)+j][i*(M+1)+j]=1
-            A[i*(M+1)+d+1]=np.zeros((M+1)**2)
-            A[i*(M+1)+d+1]=1
+        for i in range(e+1,f):
+            for j in range(d+2,M-1):
+                A[i*(M+1)+j,i*(M+1)+j]=cc
+                A[i*(M+1)+j,i*(M+1)+j-1]=bb
+                A[i*(M+1)+j,i*(M+1)+j+1]=bb
+                A[i*(M+1)+j,i*(M+1)+j-(M+1)]=aa
+                A[i*(M+1)+j,i*(M+1)+j+(M+1)]=aa
     return(A)
 
 def dVmatriceB(M,L,a,b):
@@ -371,8 +392,8 @@ def dchampsV(M,L):
 
 
 fig = plt.figure(figsize = (11,7), dpi=100)
-#plt.quiver(X, Y, dchampsU(M,[((1,2),1)]), dchampsV(M,[((5,9),4)]))
-ax = sns.heatmap(dPdx(M))
+plt.quiver(X, Y, champsU(M), champsV(M))
+#ax = sns.heatmap(dchampsU(M,[((5,9),4)]))
 plt.show()
 
 
