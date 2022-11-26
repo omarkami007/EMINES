@@ -10,7 +10,7 @@ np.set_printoptions(linewidth=sys.maxsize)
 
 
 M = 10
-N = 10
+N = 15
 Lx = 2
 Ly = 1
 L=[(5,9,5)]
@@ -76,7 +76,7 @@ def dPmatriceA(M,N,a,b):
 
 def dPmatriceB(M,N,a,b):
     #dP/dx=0 aux bords
-    B = matriceB(M,N,Lx,Ly,P2,P1,np.zeros(M+1),np.zeros(M+1),np.zeros((N+1,M+1)))
+    B = matriceB(M,N,Lx,Ly,P2,P1,np.zeros(N+1),np.zeros(N+1),np.zeros((N+1,M+1)))
     return(B)
 
 def dchampsP(M,N):
@@ -129,6 +129,72 @@ def champsU(M,N):
     U = np.linalg.solve(A,B)
     U = np.transpose(U.reshape((N+1,M+1)))
     return(U)
+
+##Calcul de V = uy:
+
+V2 = 0
+V1 = 0
+
+def VmatriceA(M,a,b):
+    A = matriceA(M,a,b)
+    A[M*(M+1):]=np.zeros((M+1,(M+1)**2))
+    for j in range(M+1):
+        A[:M+1][j][j+M*(M+1)]=-1
+        if j !=0 and j != M:
+            A[j*(M+1)+1]=np.zeros((M+1)**2)
+            A[j*(M+1)+1][j*(M+1)+1]=1
+            A[j*(M+1)+1][j*(M+1)]=-1
+            A[(j+1)*(M+1)-2]=np.zeros((M+1)**2)
+            A[(j+1)*(M+1)-2][(j+1)*(M+1)-2]=1
+            A[(j+1)*(M+1)-2][(j+1)*(M+1)-1]=-1
+
+    return(A)
+
+def dPdy(M):
+    P =  dchampsP(M,N)
+    dP = np.zeros((N+1,M+1))
+    d = eta*((b)**-0.5)
+    for j in range(M+1):
+        for i in range(N+1):
+            dP[i,j]=(P[i+1,j]-P[i,j])/d
+        dP[N,M]=(P[i,M]-P[i,M-1])/d
+    return(dP)
+
+
+def VmatriceB(M,a,b):
+    B = matriceB(M,Lx,Ly,V2,V1,np.zeros(M+1),np.zeros(M+1),dPdy(M))
+    for i in range(1,M):
+        B[i*(M+1)+1]=0
+        B[(i+1)*(M+1)-2]=0
+
+    for i in range(9,20):
+        for j in range(10):
+            B[i*(M+1)+j]=0
+
+
+
+
+    return(B)
+
+
+def champsV(M):
+    A = VmatriceA(M,a,b)
+    B = VmatriceB(M,a,b)
+    V = np.linalg.solve(A,B)
+    V = np.transpose(V.reshape((M+1,M+1)))
+    return(V)
+
+
+
+
+
+
+
+
+
+
+
+
 
 fig = plt.figure(figsize = (11,7), dpi=100)
 plt.contourf(X, Y, champsU(M,N),levels=50)
