@@ -9,7 +9,7 @@ np.set_printoptions(linewidth=sys.maxsize)
 
 
 
-M = 10
+M = 15
 N = 15
 Lx = 2
 Ly = 1
@@ -45,9 +45,9 @@ def matriceB(M,N,Lx,Ly,CD,CG,CB,CH,G):
     x = np.linspace(0, Lx , N+1)
     y = np.linspace(0, Ly, M+1)
     X,Y = np.meshgrid(x, y)
-    B=np.zeros((N+1,M+1))
-    for i in range(N+1):
-        for j in range(M+1):
+    B=np.zeros((M+1,N+1))
+    for i in range(M+1):
+        for j in range(N+1):
             B[i,j]=G[i,j]
     B = B.reshape(((N+1)*(M+1),1))
     B[0:M+1,0]=CG
@@ -76,14 +76,14 @@ def dPmatriceA(M,N,a,b):
 
 def dPmatriceB(M,N,a,b):
     #dP/dx=0 aux bords
-    B = matriceB(M,N,Lx,Ly,P2,P1,np.zeros(N+1),np.zeros(N+1),np.zeros((N+1,M+1)))
+    B = matriceB(M,N,Lx,Ly,P2,P1,np.zeros(N+1),np.zeros(N+1),np.zeros((M+1,N+1)))
     return(B)
 
 def dchampsP(M,N):
     A = dPmatriceA(M,N,a,b)
     B = dPmatriceB(M,N,a,b)
     P = np.linalg.solve(A,B)
-    P = P.reshape((M+1,N+1))
+    P = P.reshape((N+1,M+1))
     return(np.transpose(P))
 
 
@@ -108,12 +108,12 @@ def UmatriceA(M,N,a,b):
 
 def dPdx(M,N):
     P =  dchampsP(M,N)
-    dP = np.zeros((N+1,M+1))
+    dP = np.zeros((M+1,N+1))
     d = eta*((a)**-0.5)
-    for i in range(N+1):
-        for j in range(M):
-            dP[i,j]=(P[i,j+1]-P[i,j])/d
-        dP[i,M]=(P[i,M]-P[i,M-1])/d
+    for j in range(M+1):
+        for i in range(N):
+            dP[j,i]=(P[j,i+1]-P[j,i])/d
+        dP[j,N]=(P[j,N]-P[j,N-1])/d
     return(dP)
 
 
@@ -135,54 +135,54 @@ def champsU(M,N):
 V2 = 0
 V1 = 0
 
-def VmatriceA(M,a,b):
-    A = matriceA(M,a,b)
-    A[M*(M+1):]=np.zeros((M+1,(M+1)**2))
+def VmatriceA(M,N,a,b):
+    A = matriceA(M,N,a,b)
+    A[N*(M+1):]=np.zeros((M+1,(N+1)*(M+1)))
     for j in range(M+1):
-        A[:M+1][j][j+M*(M+1)]=-1
-        if j !=0 and j != M:
-            A[j*(M+1)+1]=np.zeros((M+1)**2)
-            A[j*(M+1)+1][j*(M+1)+1]=1
-            A[j*(M+1)+1][j*(M+1)]=-1
-            A[(j+1)*(M+1)-2]=np.zeros((M+1)**2)
-            A[(j+1)*(M+1)-2][(j+1)*(M+1)-2]=1
-            A[(j+1)*(M+1)-2][(j+1)*(M+1)-1]=-1
+        A[:M+1][j][j+N*(M+1)]=-1
+    for i in range(1,N):
+        A[i*(M+1)+1]=np.zeros((N+1)*(M+1))
+        A[i*(M+1)+1][i*(M+1)+1]=1
+        A[i*(M+1)+1][i*(M+1)]=-1
+        A[(i+1)*(M+1)-2]=np.zeros((N+1)*(M+1))
+        A[(i+1)*(M+1)-2][(i+1)*(M+1)-2]=1
+        A[(i+1)*(M+1)-2][(i+1)*(M+1)-1]=-1
+    for j in range(M+1):
+        A[N*(M+1):,j][j]=-1
+        A[N*(M+1):][j][j+M+1]=1
+        A[N*(M+1):][j][j+(M+1)*(N-1)]=1
+        A[N*(M+1):][j][j+(M+1)*N]=-1
 
     return(A)
 
-def dPdy(M):
+def dPdy(M,N):
     P =  dchampsP(M,N)
-    dP = np.zeros((N+1,M+1))
+    dP = np.zeros((M+1,N+1))
     d = eta*((b)**-0.5)
-    for j in range(M+1):
-        for i in range(N+1):
-            dP[i,j]=(P[i+1,j]-P[i,j])/d
-        dP[N,M]=(P[i,M]-P[i,M-1])/d
+    for i in range(N+1):
+        for j in range(M):
+            dP[j,i]=(P[j+1,i]-P[j,i])/d
+        dP[M,i]=(P[M,i]-P[M-1,i])/d
     return(dP)
 
 
-def VmatriceB(M,a,b):
-    B = matriceB(M,Lx,Ly,V2,V1,np.zeros(M+1),np.zeros(M+1),dPdy(M))
-    for i in range(1,M):
+def VmatriceB(M,N,a,b):
+    B = matriceB(M,N,Lx,Ly,V2,V1,np.zeros(N+1),np.zeros(N+1),dPdy(M,N))
+    for i in range(1,N):
         B[i*(M+1)+1]=0
         B[(i+1)*(M+1)-2]=0
-
-    for i in range(9,20):
-        for j in range(10):
-            B[i*(M+1)+j]=0
-
-
-
 
     return(B)
 
 
-def champsV(M):
-    A = VmatriceA(M,a,b)
-    B = VmatriceB(M,a,b)
+def champsV(M,N):
+    A = VmatriceA(M,N,a,b)
+    B = VmatriceB(M,N,a,b)
     V = np.linalg.solve(A,B)
-    V = np.transpose(V.reshape((M+1,M+1)))
+    V = np.transpose(V.reshape((N+1,M+1)))
     return(V)
+
+
 
 
 
@@ -199,6 +199,6 @@ def champsV(M):
 fig = plt.figure(figsize = (11,7), dpi=100)
 plt.contourf(X, Y, champsU(M,N),levels=50)
 plt.colorbar()
-plt.quiver(X, Y, champsU(M,N), np.zeros((N+1,M+1)))
-#ax = sns.heatmap(champsU(M))
+plt.quiver(X, Y, champsU(M,N), champsV(M,N))
+#ax = sns.heatmap(champsU(M,N))
 plt.show()
