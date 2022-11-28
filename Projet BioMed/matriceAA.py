@@ -17,14 +17,55 @@ def matriceAA(M,N): #N>M
     Ly=N*Lx/M
     a=(M/Lx)**2
     c=-4*a
-    eta=10*(-8)
-    b=M/(eta*Lx)
-    #A5
-    A5=np.identity((N+1)*(M+1))
+    eta=10**(-8)
+    #b=M/(2*eta*Lx)
+    b=2
     L=[i for i in range(M+2,N*(M+1)-1)]
     for i in range(2,N):
         L.remove(i*(M+1))
         L.remove(i*(M+1)-1)
+
+    A1=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
+    A1[N*(M+1):,N*(M+1):]=np.eye(M+1)
+    A1[:M+1,:M+1]=np.eye(M+1)
+    '''for i in range(1,N):
+        A1[i*(M+1)][i*(M+1)]=1
+        A1[i*(M+1)][i*(M+1)+2]=1
+        A1[i*(M+1)][i*(M+1)+1]=-4
+        A1[i*(M+1)][i*(M+1)+1-M-1]=1
+        A1[i*(M+1)][i*(M+1)+1+M+1]=1
+
+
+        A1[(i+1)*(M+1)-1][(i+1)*(M+1)-1]=1
+        A1[(i+1)*(M+1)-1][(i+1)*(M+1)-3]=1
+        A1[(i+1)*(M+1)-1][(i+1)*(M+1)-2]=-4
+        A1[(i+1)*(M+1)-1][(i+1)*(M+1)-2+M+1]=1
+        A1[(i+1)*(M+1)-1][(i+1)*(M+1)-2-M-1]=1'''
+
+
+
+    A2=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
+    for x in L:
+        A2[x,x+M+1]=1
+        A2[x,x-M-1]=-1
+    A3=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
+    for x in L:
+        A3[x,x+1]=1
+        A3[x,x-1]=-1
+    for i in range(1,N):
+        A3[i*(M+1)][i*(M+1)+1]=1
+        A3[i*(M+1)][i*(M+1)]=-1
+        A3[(i+1)*(M+1)-1][(i+1)*(M+1)-2]=1
+        A3[(i+1)*(M+1)-1][(i+1)*(M+1)-1]=-1
+
+
+    A4=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
+    for x in L:
+        A4[x,x-M-1]=b
+        A4[x,x+M+1]=-b
+
+
+    A5=np.identity((N+1)*(M+1))
     for x in L:
         A5[x,x]=c
         A5[x,x-1],A5[x,x+1]=a,a
@@ -36,44 +77,40 @@ def matriceAA(M,N): #N>M
         A5[N*(M+1):][j,j+M+1]=1
         A5[N*(M+1):][j,j+(N-1)*(M+1)]=1
         A5[N*(M+1):][j,j+N*(M+1)]=-1
+    A5[0][N*(M+1)]=0
+    A5[M][-1]=0
+    A5[N*(M+1)][0]=0
+    A5[N*(M+1)][M+1]=0
+    A5[N*(M+1)][(N-1)*(M+1)]=0
 
-
-
-
-
-    A9=A5.copy()
-    for i in range(1,N):
-        A9[i*(M+1)+1]=np.zeros((N+1)*(M+1))
-        A9[i*(M+1)+1][i*(M+1)+1]=1
-        A9[(i+1)*(M+1)-2]=np.zeros((N+1)*(M+1))
-        A9[(i+1)*(M+1)-2][(i+1)*(M+1)-2]=1
+    A5[(N+1)*(M+1)-1][M]=0
+    A5[(N+1)*(M+1)-1][2*(M+1)-1]=0
+    A5[(N+1)*(M+1)-1][N*(M+1)-1]=0
+    A5[N*(M+1)][N*(M+1)]=1
+    A5[(N+1)*(M+1)-1][-1]=1
 
     A6=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
+
+    A7=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
+    for x in L:
+        A7[x,x-1]=b
+        A7[x,x+1]=-b
+
     A8=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
-    A1=np.identity((N+1)*(M+1))
-    for x in L:
-        A1[x,x]=0
-    for i in range(1,N):
-        A1[i*(M+1)][i*(M+1)+1]=-1
-        A1[(i+1)*(M+1)-1][(i+1)*(M+1)-2]=-1
-    A3=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
-    for x in L:
-        A3[x,x]=1
-        A3[x,x-1]=-1
-    '''for i in range(1,N):
-        A3[i*(M+1)]=1
-        A3[(i+1)*(M+1)-1]=1'''
-    A7=-b*A3.copy()
-    for i in range(1,N):
-        A7[i*(M+1)+1]=np.zeros((N+1)*(M+1))
-        A7[(i+1)*(M+1)-2]=np.zeros((N+1)*(M+1))
-    A2=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
-    for x in L:
-        A2[x,x]=1
-        A2[x,x-M-1]=-1
-    A4=-b*A2.copy()
-    A= np.bmat([[A1,A2,A3],[A4,A5,A6],[A7,A8,A9]])
-    return(A)
+
+    A9=A5.copy()
+
+
+
+
+
+
+    A= np.block([[A1,A2,A3],[A4,A5,A6],[A7,A8,A9]])
+
+
+    return(A1,A2,A3,A4,A5,A6,A7,A8,A9)
+    #return(A)
+
 
 def matriceBB(M,N):
     P2=10*np.ones(M+1)
@@ -81,9 +118,6 @@ def matriceBB(M,N):
     B= np.zeros(3*(N+1)*(M+1))
     B[:M+1]=P2
     B[N*(M+1):(N+1)*(M+1)]=P1
-    for i in range(1,N):
-        B[i*(M+1)+1+2*(N+1)*(M+1)]=1
-        B[(i+1)*(M+1)-2+2*(N+1)*(M+1)]=1
 
     return(B)
 
@@ -92,14 +126,16 @@ def inconnuX(M,N):
     B = matriceBB(M,N)
     X=np.linalg.solve(A,B)
     P = X[:(N+1)*(M+1)]
-    P = P.reshape((M+1,N+1))
+    P = P.reshape((N+1,M+1))
     P = np.transpose(P)
 
     U = X[(N+1)*(M+1):2*(N+1)*(M+1)]
-    U = U.reshape((M+1,N+1))
+    U = U.reshape((N+1,M+1))
     U = np.transpose(U)
 
     V = X[2*(N+1)*(M+1):3*(N+1)*(M+1)]
-    V = V.reshape((M+1,N+1))
+    V = V.reshape((N+1,M+1))
     V = np.transpose(V)
+
     return(P,U,V)
+

@@ -10,8 +10,8 @@ np.set_printoptions(linewidth=sys.maxsize)
 
 
 
-M = 5
-N = 5
+M = 10
+N = 10
 Lx = 2
 Ly = 1
 a = (N/Lx)**2
@@ -268,6 +268,6 @@ def champsV(M,N):
 fig = plt.figure(figsize = (11,7), dpi=100)
 plt.contourf(X, Y, np.sqrt((champsU(M,N))**2+(champsV(M,N))**2),levels=50)
 plt.colorbar()
-#plt.quiver(X, Y, champsU(M,N), champsV(M,N))
+plt.quiver(X, Y, champsU(M,N), champsV(M,N))
 #ax = sns.heatmap(dchampsP2(M,N))
 plt.show()

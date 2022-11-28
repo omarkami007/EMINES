@@ -9,8 +9,8 @@ np.set_printoptions(linewidth=sys.maxsize)
 
 
 
-M = 15
-N = 15
+M = 4
+N = 3
 Lx = 2
 Ly = 1
 L=[(5,9,5)]
@@ -77,7 +77,7 @@ def dPmatriceA(M,N,a,b):
 def dPmatriceB(M,N,a,b):
     #dP/dx=0 aux bords
     B = matriceB(M,N,Lx,Ly,P2,P1,np.zeros(N+1),np.zeros(N+1),np.zeros((M+1,N+1)))
-    return(B)
+    return(B.reshape(((N+1)*(M+1),)))
 
 def dchampsP(M,N):
     A = dPmatriceA(M,N,a,b)
