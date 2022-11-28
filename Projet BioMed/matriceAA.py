@@ -30,7 +30,24 @@ def matriceAA(M,N): #N>M
         A5[x,x-1],A5[x,x+1]=a,a
         A5[x,x-(M+1)]=a
         A5[x,x+(M+1)]=a
+    for j in range(M+1):
+        A5[:M+1][j,j+N*(M+1)]=-1   #periodicité sur u
+        A5[N*(M+1):][j,j]=-1
+        A5[N*(M+1):][j,j+M+1]=1
+        A5[N*(M+1):][j,j+(N-1)*(M+1)]=1
+        A5[N*(M+1):][j,j+N*(M+1)]=-1
+
+
+
+
+
     A9=A5.copy()
+    for i in range(1,N):
+        A9[i*(M+1)+1]=np.zeros((N+1)*(M+1))
+        A9[i*(M+1)+1][i*(M+1)+1]=1
+        A9[(i+1)*(M+1)-2]=np.zeros((N+1)*(M+1))
+        A9[(i+1)*(M+1)-2][(i+1)*(M+1)-2]=1
+
     A6=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
     A8=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
     A1=np.identity((N+1)*(M+1))
@@ -47,6 +64,9 @@ def matriceAA(M,N): #N>M
         A3[i*(M+1)]=1
         A3[(i+1)*(M+1)-1]=1'''
     A7=-b*A3.copy()
+    for i in range(1,N):
+        A7[i*(M+1)+1]=np.zeros((N+1)*(M+1))
+        A7[(i+1)*(M+1)-2]=np.zeros((N+1)*(M+1))
     A2=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
     for x in L:
         A2[x,x]=1
@@ -56,11 +76,15 @@ def matriceAA(M,N): #N>M
     return(A)
 
 def matriceBB(M,N):
-    P2=10
-    P1=5
+    P2=10*np.ones(M+1)
+    P1=5*np.ones(M+1)
     B= np.zeros(3*(N+1)*(M+1))
     B[:M+1]=P2
     B[N*(M+1):(N+1)*(M+1)]=P1
+    for i in range(1,N):
+        B[i*(M+1)+1+2*(N+1)*(M+1)]=1
+        B[(i+1)*(M+1)-2+2*(N+1)*(M+1)]=1
+
     return(B)
 
 def inconnuX(M,N):
