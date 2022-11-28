@@ -18,8 +18,8 @@ def matriceAA(M,N): #N>M
     a=(M/Lx)**2
     c=-4*a
     eta=10**(-8)
-    #b=M/(2*eta*Lx)
-    b=2
+    b=M/(2*eta*Lx)
+    #b=2
     L=[i for i in range(M+2,N*(M+1)-1)]
     for i in range(2,N):
         L.remove(i*(M+1))
@@ -108,8 +108,8 @@ def matriceAA(M,N): #N>M
     A= np.block([[A1,A2,A3],[A4,A5,A6],[A7,A8,A9]])
 
 
-    return(A1,A2,A3,A4,A5,A6,A7,A8,A9)
-    #return(A)
+    #return(A1,A2,A3,A4,A5,A6,A7,A8,A9)
+    return(A)
 
 
 def matriceBB(M,N):
