@@ -10,8 +10,8 @@ np.set_printoptions(linewidth=sys.maxsize)
 
 
 
-M = 10
-N = 10
+M = 50
+N = 50
 Lx = 2
 Ly = 1
 a = (N/Lx)**2

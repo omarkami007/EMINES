@@ -9,8 +9,8 @@ np.set_printoptions(linewidth=sys.maxsize)
 
 
 
-M = 4
-N = 3
+M = 15
+N = 20
 Lx = 2
 Ly = 1
 L=[(5,9,5)]

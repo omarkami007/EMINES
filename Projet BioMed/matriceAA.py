@@ -14,12 +14,12 @@ np.set_printoptions(linewidth=sys.maxsize)
 
 def matriceAA(M,N): #N>M
     Lx=2
-    Ly=N*Lx/M
-    a=(M/Lx)**2
+    Ly=M*Lx/N
+    a=(N/Lx)**2
     c=-4*a
     eta=10**(-8)
-    b=M/(2*eta*Lx)
-    #b=2
+    #b=M/(2*eta*Lx)
+    b=2
     L=[i for i in range(M+2,N*(M+1)-1)]
     for i in range(2,N):
         L.remove(i*(M+1))
@@ -46,12 +46,12 @@ def matriceAA(M,N): #N>M
 
     A2=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
     for x in L:
-        A2[x,x+M+1]=1
+        A2[x,x]=1
         A2[x,x-M-1]=-1
     A3=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
     for x in L:
         A3[x,x+1]=1
-        A3[x,x-1]=-1
+        A3[x,x]=-1
     for i in range(1,N):
         A3[i*(M+1)][i*(M+1)+1]=1
         A3[i*(M+1)][i*(M+1)]=-1
@@ -61,7 +61,7 @@ def matriceAA(M,N): #N>M
 
     A4=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
     for x in L:
-        A4[x,x-M-1]=b
+        A4[x,x]=b
         A4[x,x+M+1]=-b
 
 
@@ -86,14 +86,13 @@ def matriceAA(M,N): #N>M
     A5[(N+1)*(M+1)-1][M]=0
     A5[(N+1)*(M+1)-1][2*(M+1)-1]=0
     A5[(N+1)*(M+1)-1][N*(M+1)-1]=0
-    A5[N*(M+1)][N*(M+1)]=1
-    A5[(N+1)*(M+1)-1][-1]=1
+
 
     A6=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
 
     A7=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
     for x in L:
-        A7[x,x-1]=b
+        A7[x,x]=b
         A7[x,x+1]=-b
 
     A8=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
