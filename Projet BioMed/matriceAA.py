@@ -13,13 +13,14 @@ np.set_printoptions(linewidth=sys.maxsize)
 
 
 def matriceAA(M,N): #N>M
-    Lx=2
-    Ly=M*Lx/N
+    Ly=(6.7)*1e-3
+    Lx=(47.6)*1e-3
     a=(N/Lx)**2
-    c=-4*a
-    eta=10**(-8)
-    #b=M/(2*eta*Lx)
-    b=2
+    b=(M/Ly)**2
+    c=-2*(a+b)
+    eta=(18.5)*10**(-6)
+    d=M/(2*eta*Lx)
+    #b=2
     L=[i for i in range(M+2,N*(M+1)-1)]
     for i in range(2,N):
         L.remove(i*(M+1))
@@ -61,14 +62,14 @@ def matriceAA(M,N): #N>M
 
     A4=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
     for x in L:
-        A4[x,x]=b
-        A4[x,x+M+1]=-b
+        A4[x,x]=d
+        A4[x,x+M+1]=-d
 
 
     A5=np.identity((N+1)*(M+1))
     for x in L:
         A5[x,x]=c
-        A5[x,x-1],A5[x,x+1]=a,a
+        A5[x,x-1],A5[x,x+1]=b,b
         A5[x,x-(M+1)]=a
         A5[x,x+(M+1)]=a
     for j in range(M+1):
@@ -92,8 +93,8 @@ def matriceAA(M,N): #N>M
 
     A7=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
     for x in L:
-        A7[x,x]=b
-        A7[x,x+1]=-b
+        A7[x,x]=d
+        A7[x,x+1]=-d
 
     A8=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
 
@@ -101,7 +102,7 @@ def matriceAA(M,N): #N>M
 
     dA2=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
     dA3=np.zeros(((N+1)*(M+1),(N+1)*(M+1)))
-    dA1=dPmatriceA(M,N,a,a)
+    dA1=dPmatriceA(M,N,a,b)
 
 
     A= np.block([[dA1,dA2,dA3],[A4,A5,A6],[A7,A8,A9]])
@@ -112,8 +113,8 @@ def matriceAA(M,N): #N>M
 
 
 def matriceBB(M,N):
-    P2=10*np.ones(M+1)
-    P1=5*np.ones(M+1)
+    P2=(1.037)*np.ones(M+1)
+    P1=1*np.ones(M+1)
     B= np.zeros(3*(N+1)*(M+1))
     B[:M+1]=P2
     B[N*(M+1):(N+1)*(M+1)]=P1
@@ -139,8 +140,8 @@ def inconnuX(M,N):
     return(P,U,V)
 
 def tracage(M,N):
-    Lx=2
-    Ly=M*Lx/N
+    Ly=(6.7)*1e-3
+    Lx=(47.6)*1e-3
     x=np.linspace(0,Lx,N+1)
     y=np.linspace(0,Ly,M+1)
     X,Y = np.meshgrid(x,y)
