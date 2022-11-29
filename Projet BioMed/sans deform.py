@@ -10,9 +10,10 @@ np.set_printoptions(linewidth=sys.maxsize)
 
 
 M = 15
-N = 20
+N = 10
+
 Lx = 2
-Ly = 1
+Ly = 3
 L=[(5,9,5)]
 a = (M/Lx)**2
 b = (N/Ly)**2
@@ -68,14 +69,26 @@ P2=np.zeros(M+1)+5
 
 def dPmatriceA(M,N,a,b):
     A = matriceA(M,N,a,b)
-    for i in range(1,N):
+    '''for i in range(1,N):
         A[i*(M+1)][i*(M+1)+1]=-1
-        A[(i+1)*(M+1)-1][(i+1)*(M+1)-2]=-1
+        A[(i+1)*(M+1)-1][(i+1)*(M+1)-2]=-1'''
+    for i in range(1,N):
+        A[i*(M+1)]=np.zeros((N+1)*(M+1))
+        A[i*(M+1)][M+2]=-1
+        A[i*(M+1)][1]=1
+        A[i*(M+1)][i*(M+1)]=-1
+        A[i*(M+1)][(i+1)*(M+1)]=1
+
+        A[(i+1)*(M+1)-1]=np.zeros((N+1)*(M+1))  #dP/dx=cte
+        A[(i+1)*(M+1)-1][M+2]=-1
+        A[(i+1)*(M+1)-1][1]=1
+        A[(i+1)*(M+1)-1][(i+1)*(M+1)-1]=-1
+        A[(i+1)*(M+1)-1][(i+1)*(M+1)-1+M+1]=1
+
 
     return(A)
 
 def dPmatriceB(M,N,a,b):
-    #dP/dx=0 aux bords
     B = matriceB(M,N,Lx,Ly,P2,P1,np.zeros(N+1),np.zeros(N+1),np.zeros((M+1,N+1)))
     return(B.reshape(((N+1)*(M+1),)))
 
