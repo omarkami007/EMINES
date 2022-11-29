@@ -139,6 +139,17 @@ def inconnuX(M,N):
 
     return(P,U,V)
 
+def debit(M,N,k):
+    #Q f la col k
+    umoy=0
+    Ly=(6.7)*1e-3
+    for i in range(M+1):
+        umoy+=inconnuX(M,N)[1][i][k]
+    umoy=umoy/(M+1)
+    return(umoy*Ly)
+
+
+
 def tracage(M,N):
     Ly=(6.7)*1e-3
     Lx=(47.6)*1e-3
