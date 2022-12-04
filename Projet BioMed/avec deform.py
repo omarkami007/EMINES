@@ -10,10 +10,10 @@ np.set_printoptions(linewidth=sys.maxsize)
 
 
 
-M = 50
-N = 50
-Lx = 2
-Ly = 1
+M = 15
+N = 15
+Ly=(6.7)*1e-3
+Lx=(47.6)*1e-3
 a = (N/Lx)**2
 b = (M/Ly)**2
 c=-2*(a+b)
@@ -61,8 +61,8 @@ def matriceB(M,N,Lx,Ly,CD,CG,CB,CH,G):
 
 ##Calcul du champs P:
         #Conditions auxbords:
-P1=np.zeros(M+1)+10
-P2=np.zeros(M+1)+5
+P1=(1.037)*np.ones(M+1)
+P2=1*np.ones(M+1)
 
 #dp/dy = 0 en haut et bas
 
@@ -140,7 +140,7 @@ def dchampsP2(M,N):
 U1 = 0
 U2 = 0
 
-eta = 1
+eta=(18.5)*10**(-6)
 
 
 def UmatriceA(M,N,a,b):
@@ -267,7 +267,12 @@ def champsV(M,N):
 
 fig = plt.figure(figsize = (11,7), dpi=100)
 plt.contourf(X, Y, np.sqrt((champsU(M,N))**2+(champsV(M,N))**2),levels=50)
-plt.colorbar()
+clb=plt.colorbar()
+clb.ax.set_title('Vitesse U (en m/s')
+#ax = sns.heatmap(champsU(M,N))
+plt.xlabel('Longueur en(mm)')
+plt.ylabel('Largeur en (mm)')
+plt.title("Ecoulement dans une bronche deformée de génération 4")
 plt.quiver(X, Y, champsU(M,N), champsV(M,N))
 #ax = sns.heatmap(dchampsP2(M,N))
 plt.show()
